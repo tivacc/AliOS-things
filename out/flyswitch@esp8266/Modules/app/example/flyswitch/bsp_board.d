@@ -1,0 +1,66 @@
+out/flyswitch@esp8266/Modules/app/example/flyswitch/bsp_board.o: \
+ app/example/flyswitch/bsp_board.c out/config/autoconf.h \
+ platform/mcu/esp8266/bsp/include/driver/gpio.h \
+ platform/mcu/esp8266/bsp/include/espressif/c_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stdint.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/stdint.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/_ansi.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/newlib.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/config.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/ieeefp.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/features.h \
+ platform/mcu/esp8266/bsp/include/xtensa/config/core-isa.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stdbool.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stddef.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/stdio.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/_ansi.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stdarg.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/reent.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/_default_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/lock.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/stdio.h \
+ include/aos/kernel.h network/yloop/include/aos/yloop.h \
+ network/yloop/include/event_type_code.h \
+ app/example/flyswitch/bsp_board.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_common.h \
+ platform/mcu/esp8266/bsp/include/espressif/c_types.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_libc.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_misc.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/ip_addr.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/opt.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwipopts.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/debug.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/arch.h \
+ platform/mcu/esp8266/bsp/include/lwip/arch/cc.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/def.h \
+ platform/mcu/esp8266/bsp/include/lwip/ipv4/lwip/ip4_addr.h \
+ platform/mcu/esp8266/bsp/include/lwip/ipv6/lwip/ip6_addr.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_wifi.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_softap.h \
+ platform/mcu/esp8266/bsp/include/espressif/queue.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_sta.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_system.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_timer.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_wpa2.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/esp8266.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/ets_sys.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/eagle_soc.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/pin_mux_register.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/spi_register.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/timer_register.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/uart_register.h \
+ platform/mcu/esp8266/bsp/include/espressif/smartconfig.h \
+ platform/mcu/esp8266/bsp/include/espressif/spi_flash.h \
+ platform/mcu/esp8266/bsp/include/espressif/pwm.h include/aos/hal/gpio.h \
+ include/aos/hal/uart.h platform/mcu/esp8266/bsp/include/driver/uart.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/uart_register.h \
+ app/example/flyswitch/fly_queue.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/stdlib.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/stdlib.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/alloca.h

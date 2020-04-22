@@ -1,0 +1,54 @@
+
+                        AOS MEMORY MAP                            
+|=================================================================|
+| MODULE                                   | ROM       | RAM      |
+|=================================================================|
+| activation                               | 343       | 0        |
+| alicrypto                                | 41039     | 4        |
+| arch_xtensa_lx106                        | 4064      | 2784     |
+| board_esp8266                            | 1315      | 0        |
+| chip_code                                | 476       | 256      |
+| cjson                                    | 4471      | 20       |
+| debug                                    | 3644      | 16       |
+| flydimming                               | 5367      | 773      |
+| imbedtls                                 | 34857     | 76       |
+| iotx-hal                                 | 8490      | 208      |
+| kernel_init                              | 115       | 0        |
+| kv                                       | 3288      | 24       |
+| libawss                                  | 30299     | 585      |
+| libcirom                                 | 37230     | 1504     |
+| libcrypto                                | 14236     | 0        |
+| libdev_bind                              | 11758     | 260      |
+| libdev_reset                             | 1154      | 35       |
+| libgcc                                   | 2213      | 0        |
+| libhal                                   | 37        | 0        |
+| libiot_cm                                | 2636      | 24       |
+| libiot_coap_coappack                     | 2099      | 0        |
+| libiot_coap_local                        | 8984      | 24       |
+| libiot_dm                                | 14573     | 105      |
+| libiot_log                               | 86        | 29       |
+| libiot_mqtt                              | 17410     | 24       |
+| libiot_sdk_impl                          | 4567      | 32       |
+| libiot_system                            | 7857      | 372      |
+| libiot_utils                             | 16668     | 4        |
+| liblwip                                  | 43323     | 2081     |
+| libmain                                  | 29495     | 711      |
+| libnet80211                              | 42574     | 3209     |
+| libphy                                   | 48162     | 461      |
+| libpp                                    | 44405     | 18008    |
+| libwpa                                   | 17228     | 626      |
+| ls_osa                                   | 107       | 0        |
+| mcu_esp8266                              | 10553     | 1480     |
+| netmgr                                   | 2489      | 262      |
+| newlib_stub                              | 456       | 0        |
+| osal_aos                                 | 1410      | 4        |
+| ota                                      | 11866     | 90       |
+| ota_2nd_boot                             | 18788     | 40       |
+| rhino                                    | 12198     | 6812     |
+| ulog                                     | 312       | 6        |
+| vfs                                      | 1368      | 1105     |
+| yloop                                    | 2777      | 32       |
+| *fill*                                   | 3817      | 170      |
+|=================================================================|
+| TOTAL (bytes)                            | 570604    | 42256    |
+|=================================================================|

@@ -1,0 +1,40 @@
+out/flydimming@esp8266/Modules/platform/mcu/esp8266/bsp/driver/i2c_master.o: \
+ platform/mcu/esp8266/bsp/driver/i2c_master.c out/config/autoconf.h \
+ platform/mcu/esp8266/bsp/include/espressif/c_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stdint.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/stdint.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/_ansi.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/newlib.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/config.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/ieeefp.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/features.h \
+ platform/mcu/esp8266/bsp/include/xtensa/config/core-isa.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stdbool.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stddef.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/ets_sys.h \
+ platform/mcu/esp8266/bsp/include/driver/gpio.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp_misc.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/ip_addr.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/opt.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwipopts.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/debug.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/arch.h \
+ platform/mcu/esp8266/bsp/include/lwip/arch/cc.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/stdio.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/_ansi.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stdarg.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/reent.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/_default_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/lock.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/machine/types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/xtensa-lx106-elf/include/sys/stdio.h \
+ platform/mcu/esp8266/bsp/include/lwip/lwip/def.h \
+ platform/mcu/esp8266/bsp/include/lwip/ipv4/lwip/ip4_addr.h \
+ platform/mcu/esp8266/bsp/include/lwip/ipv6/lwip/ip6_addr.h \
+ platform/mcu/esp8266/bsp/include/driver/i2c_master.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/pin_mux_register.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/eagle_soc.h

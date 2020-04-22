@@ -1,0 +1,27 @@
+config AOS_APP_FLYCURTAIN
+    bool "Fly Curtain Application"
+    select AOS_COMP_CLI if !AOS_BOARD_ESP8266
+    select AOS_COMP_NETMGR
+    select AOS_COMP_OTA
+    select AOS_COMP_CJSON
+    select AOS_COMP_LINKKIT_SDK_C
+    select APP_FEATURE_LINKKIT
+    select AOS_COMP_CJSON
+    help
+        flycurtain
+
+if AOS_APP_FLYCURTAIN
+# Configurations for app flycurtain
+choice
+    prompt "Select Case"
+    default FLYCURTAIN_CONFIG_CASE_SOLO
+    help
+        select case to build
+
+    config FLYCURTAIN_CONFIG_CASE_SOLO
+        bool "SOLO"
+        help
+            default case, build fly_curtain.c
+endchoice
+
+endif

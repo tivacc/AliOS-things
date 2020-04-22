@@ -1,0 +1,16 @@
+2019.05.22
+1. create this project
+
+2019.06.08
+1.follow the sch,add the drv of board
+2.add the wifi config
+3.add the ota function
+
+2019.08.04
+1.define the Conditional compilation option,for support the subg and wifi
+2.modify the pin function of the key(Pin_14,Pin_13,Pin_15,Pin_5)
+
+2019.10.04
+1.modify the bug when connect cloud failed.
+2.modify the network config to device ap.
+3.modify led of the network state.
