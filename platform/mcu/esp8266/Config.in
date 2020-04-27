@@ -19,4 +19,10 @@ config OSAL_CONFIG
     string
     default rhino
 
+config MCU_SUPPORT_PWM
+    bool "Enable ESP8266 PWM"
+    default n
+    help
+        Press <Y> here to add support for the pwm. 
+
 endif

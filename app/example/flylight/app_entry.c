@@ -149,6 +149,7 @@ static uint32_t wifi_config_key_cnt = 0;
 
 static void fly_event_poll_func()
 {
+    rec_wdt_feed();
     char configState;
 
     #if 0
@@ -583,6 +584,8 @@ int application_start(int argc, char **argv)
         aos_register_event_filter(EV_KEY, key_config_event, NULL);
         aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
+
+        rec_wdt_init(500);
         aos_task_new("network_start", network_start, NULL, 4096);
     }
     else

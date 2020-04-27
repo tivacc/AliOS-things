@@ -14,6 +14,8 @@ out/flydimming@esp8266/Modules/platform/mcu/esp8266/bsp/driver/i2c_master.o: \
  platform/mcu/esp8266/bsp/include/espressif/esp8266/ets_sys.h \
  platform/mcu/esp8266/bsp/include/driver/gpio.h \
  platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/pin_mux_register.h \
+ platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/eagle_soc.h \
  platform/mcu/esp8266/bsp/include/espressif/esp_misc.h \
  platform/mcu/esp8266/bsp/include/lwip/lwip/ip_addr.h \
  platform/mcu/esp8266/bsp/include/lwip/lwip/opt.h \
@@ -36,5 +38,4 @@ out/flydimming@esp8266/Modules/platform/mcu/esp8266/bsp/driver/i2c_master.o: \
  platform/mcu/esp8266/bsp/include/lwip/ipv4/lwip/ip4_addr.h \
  platform/mcu/esp8266/bsp/include/lwip/ipv6/lwip/ip6_addr.h \
  platform/mcu/esp8266/bsp/include/driver/i2c_master.h \
- platform/mcu/esp8266/bsp/include/espressif/esp8266/pin_mux_register.h \
- platform/mcu/esp8266/bsp/include/espressif/esp8266/eagle_soc.h
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/pin_mux_register.h

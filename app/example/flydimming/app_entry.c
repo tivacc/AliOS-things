@@ -19,6 +19,7 @@
 #include "aos/hal/uart.h"
 #include "driver/uart.h"
 #include "fly_queue.h"
+#include "fly_light_ctrl.h"
 
 #ifdef CSP_LINUXHOST
     #include <signal.h>
@@ -28,25 +29,15 @@
     #include "ota/ota_service.h"
 #endif
 
-// #define KV_KEY_ALIYUN_CONFIG        "curtain_aliyun_config"
-// #define KV_KEY_PRODUCT_KEY          "curtain_product_key"
-// #define KV_KEY_PRODUCT_SECRET       "curtain_product_secret"
-// #define KV_KEY_DEVICE_NAME          "curtain_device_name"
-// #define KV_KEY_DEVICE_SECRET        "curtain_device_secret"
-// #define KV_KEY_CONFIG_STATE         "awss_config_state"
-
-#define KV_KEY_ALIYUN_CONFIG        "light_aliyun_config"
-#define KV_KEY_PRODUCT_KEY          "light_product_key"
-#define KV_KEY_PRODUCT_SECRET       "light_product_secret"
-#define KV_KEY_DEVICE_NAME          "light_device_name"
-#define KV_KEY_DEVICE_SECRET        "light_device_secret"
+#define KV_KEY_ALIYUN_CONFIG        "fly_aliyun_config"
+#define KV_KEY_PRODUCT_KEY          "fly_product_key"
+#define KV_KEY_PRODUCT_SECRET       "fly_product_secret"
+#define KV_KEY_DEVICE_NAME          "fly_device_name"
+#define KV_KEY_DEVICE_SECRET        "fly_device_secret"
+#define KV_KEY_LIGHT_STATE          "fly_light_state"
 #define KV_KEY_CONFIG_STATE         "awss_config_state"
 
-#define HAL_WAIT_FOREVER            0xFFFFFFFFU
-
-
 //***********************************************************
-
 static char         linkkit_started     = 0;
 static aos_timer_t  fly_event_timer;
 
@@ -56,12 +47,17 @@ uint8_t productSecret[32] = {0};
 uint8_t deviceName[32] = {0};
 uint8_t deviceSecret[62] = {0};
 
+light_state_t lightState;
 uint32_t wifi_config_state   = 0;
-uint32_t wireless_ctrl_state = 0;
 
 extern uint32_t    recv_size;
 extern uint32_t    send_size;
+extern uint8_t     zcd_cnt;
+extern uint8_t     zcd_start;
 
+
+//static void pwmInit(void);
+//static void pwmrun(void *arg);
 //***********************************************************
 
 
@@ -143,6 +139,8 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 
 
 static uint64_t key_start_time = 0;
+static uint32_t zcd_start_state = 0;
+static uint32_t zcd_valid_time = 0;
 static void wifiConfigBtnPoll(void)
 {
     char configState = 0;
@@ -172,6 +170,42 @@ static void wifiConfigBtnPoll(void)
     else
     {
         key_start_time = 0;
+    }
+
+
+    //100ms will detect 5 times,if detect more than 4 times,
+    //it was considered power is on,else power is off.
+    if(zcd_start)
+    {
+        zcd_start = 0;
+        if(zcd_cnt >=4)                     
+        {   
+            zcd_cnt = 0;
+        }
+        else
+        {
+            zcd_cnt = 0;
+            zcd_start_state += 1;
+        }
+        
+        if(zcd_start_state)
+        {
+            zcd_valid_time += 1;
+            if(zcd_valid_time >= 30)        //on/off dimming light 5 times in 3 seconds
+            {
+                zcd_valid_time = 0;
+                if(zcd_start_state >= 5)
+                {   
+                    configState = 0x5A;
+                    HAL_Kv_Set(KV_KEY_CONFIG_STATE,&configState,sizeof(configState),0);
+
+                    //reboot for configuration mode
+                    linkkit_reset();
+                }
+
+                zcd_start_state = 0;
+            }
+        }
     }
 }
 
@@ -209,32 +243,17 @@ static void wifiLedStateDisplay(void)
     }
 }
 
-static void curtainCtrlReq(void)
-{
-    //poll uart data
-    uint8_t retState = serial_receive_handler(SERIAL_TYPE_CURTAIN_CTRL);
-    if(retState == 1)
-    {
-        wireless_ctrl_state = 1;
-    }
-    else
-    {
-        wireless_ctrl_state = 0;
-    }
-}
 
 static void fly_event_poll_func()
-//static void fly_event_poll(void *arg1)
 {
-    curtainCtrlReq();
+    rec_wdt_feed();
     wifiConfigBtnPoll();
     wifiLedStateDisplay();
-    // wifi_led_config_func(3);        //toggle led --100ms
-    // aos_post_delayed_action(100,fly_event_poll,NULL);
 }
 
 static uint8_t oneKeyOneDev = 0;
 static void fly_key_uart_poll(void *arg)
+//static void fly_key_uart_poll()
 {
     uint8_t keyWriteRes[32];    
     uint8_t retState = serial_receive_handler(SERIAL_TYPE_KEY_WRITE);
@@ -287,6 +306,11 @@ static void fly_key_uart_poll(void *arg)
 
             strncpy(keyWriteRes,"ok",2);
             serial_send_handler(SERIAL_TYPE_KEY_WRITE,2,keyWriteRes);
+
+            lightState.lightOn = 1;
+            lightState.lightLum = 100;
+            lightState.lightCt = 6400;            
+            HAL_Kv_Set(KV_KEY_LIGHT_STATE,&lightState,sizeof(light_state_t),0);
 
             linkkit_reset();
             }
@@ -383,8 +407,8 @@ static void linkkit_event_monitor(int event)
         case IOTX_CONN_CLOUD_FAIL: // Device fails to connect cloud, refer to
                                    // net_sockets.h for error code
             wifi_config_state = 2;
-            extern int curtain_connect_fail_handler(void);
-            curtain_connect_fail_handler();
+            extern int dimming_connect_fail_handler(void);
+            dimming_connect_fail_handler();
             //LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
             break;
@@ -409,7 +433,7 @@ static void local_service_start(void)
     wifi_led_init();
     wifi_led_config_func(0);
 
-    serial_init();
+    light_ctrl_init();
 }
 
 static void network_start(void *p)
@@ -457,7 +481,7 @@ void set_iotx_info()
     HAL_SetDeviceSecret(deviceSecret);
 }
 
-//start
+
 int application_start(int argc, char **argv)
 {
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -490,23 +514,31 @@ int application_start(int argc, char **argv)
         memset(deviceSecret, 0, sizeof(deviceSecret));
         HAL_Kv_Get(KV_KEY_DEVICE_SECRET,deviceSecret,&tempLen);
         //printf("deviceSecret:%s",deviceSecret);
+
+        tempLen = sizeof(light_state_t);
+        HAL_Kv_Get(KV_KEY_LIGHT_STATE,&lightState,&tempLen);
+
+        printf("state-%d,lum-%d,ct-%d\n",lightState.lightOn,lightState.lightLum,lightState.lightCt);
         set_iotx_info();
 
         local_service_start();
         netmgr_init();
+        zcd_gpio_init();
         aos_register_event_filter(EV_KEY, key_config_event, NULL);
         aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
+        rec_wdt_init(500);
         aos_timer_new(&fly_event_timer, fly_event_poll_func, NULL, 100, 1);
-        //aos_post_delayed_action(0,fly_event_poll,NULL);
         aos_task_new("network_start", network_start, NULL, 4096);
     }
     else
     {
+        serial_init();
         local_service_start();
-        aos_post_delayed_action(0,fly_key_uart_poll,NULL);
+        //aos_timer_new(&fly_event_timer, fly_key_uart_poll, NULL, 100, 1);
+        aos_post_delayed_action(100,fly_key_uart_poll,NULL);
     }
-    
+
     aos_loop_run();
     return 0;
 }

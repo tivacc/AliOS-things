@@ -42,7 +42,7 @@ void  light_ctrl_white(void);
 
 void light_save_state(uint8_t typeParam,uint32_t lightParam);
 
-
+uint32_t light_get_state(uint8_t typeParam);
 
 
 #endif /* __FLY_LIGHT_CONTROLLER_H__ */

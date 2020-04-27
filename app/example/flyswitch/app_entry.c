@@ -28,18 +28,11 @@
     #include "ota/ota_service.h"
 #endif
 
-// #define KV_KEY_ALIYUN_CONFIG        "curtain_aliyun_config"
-// #define KV_KEY_PRODUCT_KEY          "curtain_product_key"
-// #define KV_KEY_PRODUCT_SECRET       "curtain_product_secret"
-// #define KV_KEY_DEVICE_NAME          "curtain_device_name"
-// #define KV_KEY_DEVICE_SECRET        "curtain_device_secret"
-// #define KV_KEY_CONFIG_STATE         "awss_config_state"
-
-#define KV_KEY_ALIYUN_CONFIG        "light_aliyun_config"
-#define KV_KEY_PRODUCT_KEY          "light_product_key"
-#define KV_KEY_PRODUCT_SECRET       "light_product_secret"
-#define KV_KEY_DEVICE_NAME          "light_device_name"
-#define KV_KEY_DEVICE_SECRET        "light_device_secret"
+#define KV_KEY_ALIYUN_CONFIG        "switch_aliyun_config"
+#define KV_KEY_PRODUCT_KEY          "switch_product_key"
+#define KV_KEY_PRODUCT_SECRET       "switch_product_secret"
+#define KV_KEY_DEVICE_NAME          "switch_device_name"
+#define KV_KEY_DEVICE_SECRET        "switch_device_secret"
 #define KV_KEY_CONFIG_STATE         "awss_config_state"
 
 #define HAL_WAIT_FOREVER            0xFFFFFFFFU
@@ -209,28 +202,13 @@ static void wifiLedStateDisplay(void)
     }
 }
 
-static void curtainCtrlReq(void)
-{
-    //poll uart data
-    uint8_t retState = serial_receive_handler(SERIAL_TYPE_CURTAIN_CTRL);
-    if(retState == 1)
-    {
-        wireless_ctrl_state = 1;
-    }
-    else
-    {
-        wireless_ctrl_state = 0;
-    }
-}
 
 static void fly_event_poll_func()
 //static void fly_event_poll(void *arg1)
 {
-    curtainCtrlReq();
+    rec_wdt_feed();
     wifiConfigBtnPoll();
     wifiLedStateDisplay();
-    // wifi_led_config_func(3);        //toggle led --100ms
-    // aos_post_delayed_action(100,fly_event_poll,NULL);
 }
 
 static uint8_t oneKeyOneDev = 0;
@@ -383,8 +361,8 @@ static void linkkit_event_monitor(int event)
         case IOTX_CONN_CLOUD_FAIL: // Device fails to connect cloud, refer to
                                    // net_sockets.h for error code
             wifi_config_state = 2;
-            extern int curtain_connect_fail_handler(void);
-            curtain_connect_fail_handler();
+            extern int switch_connect_fail_handler(void);
+            switch_connect_fail_handler();
             //LOG("IOTX_CONN_CLOUD_FAIL");
             // operate led to indicate user
             break;
@@ -409,7 +387,7 @@ static void local_service_start(void)
     wifi_led_init();
     wifi_led_config_func(0);
 
-    serial_init();
+    switch_gpio_init();
 }
 
 static void network_start(void *p)
@@ -492,17 +470,19 @@ int application_start(int argc, char **argv)
         //printf("deviceSecret:%s",deviceSecret);
         set_iotx_info();
 
+        serial_init();
         local_service_start();
         netmgr_init();
         aos_register_event_filter(EV_KEY, key_config_event, NULL);
         aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
+        rec_wdt_init(500);
         aos_timer_new(&fly_event_timer, fly_event_poll_func, NULL, 100, 1);
-        //aos_post_delayed_action(0,fly_event_poll,NULL);
         aos_task_new("network_start", network_start, NULL, 4096);
     }
     else
     {
+        serial_init();
         local_service_start();
         aos_post_delayed_action(0,fly_key_uart_poll,NULL);
     }

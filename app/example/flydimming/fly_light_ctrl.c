@@ -1,11 +1,12 @@
-#include "aos/kernel.h"
 #include <k_api.h>
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
 #include "iot_export.h"
 #include "iot_import.h"
 #include "fly_light_ctrl.h"
 
 #define DIMMING_SPEED				100
-#define DIMMING_PRECISION			2
+#define DIMMING_PRECISION			3
 #define ABS_MINUS(x, y)				(x < y ? (y - x) : (x - y))
 
 os_timer_t		smooth_timer;
@@ -13,7 +14,6 @@ uint32_t		light_duty_now[PWM_CHANNEL_CNT];
 uint32_t		light_duty_cur[PWM_CHANNEL_CNT];
 
 extern light_state_t 	lightState;
-
 void light_pwm_calc(uint8_t lum, uint32_t ct)
 {
 	uint32_t xm,ym;
@@ -22,11 +22,10 @@ void light_pwm_calc(uint8_t lum, uint32_t ct)
 
     uint32_t xc = 3053;
 	uint32_t yc = 3217;
-	uint32_t lc = 100;
 
 	uint32_t xw = 4597;
 	uint32_t yw = 4104;
-	uint32_t lw = 100;
+
     if(ct > 7000)
     {
         temp1 = (1000*20064)/(newct*newct*newct);   	//10000
@@ -34,7 +33,7 @@ void light_pwm_calc(uint8_t lum, uint32_t ct)
         temp3 = (10*2575/newct);                    	//10000
         xm = temp2+temp3+2370-temp1;
     }
-    else
+    else if(ct > 0)
     {
         temp1 = (1000*46070)/(newct*newct*newct);
         temp2 = (100*29678)/(newct*newct);
@@ -42,15 +41,24 @@ void light_pwm_calc(uint8_t lum, uint32_t ct)
         xm = temp2+temp3+2441-temp1;
     }
 
-    ym = (28700*xm - 3*xm*xm  - 2750*10000)/10000; //10000
+    if(ct > 0)
+    {
+    	ym = (28700*xm - 3*xm*xm  - 2750*10000)/10000; 		//10000
 
-	printf("xm=%d,ym=%d\n", xm,ym);
+    	temp1=  ((xm-xc)*yw);
+		temp2=  ((xw-xm)*yc);
+		temp3=  ((xw-xm)*yc+(xm-xc)*ym);
 
-	double test1=  ((xm-xc)*lum*yw);
-	double test2=  ((xw-xm)*lum*yc);
+	    light_duty_cur[0]=(temp1*lum/temp3)*10;
+		light_duty_cur[1]=(temp2*lum/temp3)*10;
+	}
+	else
+	{
+		light_duty_cur[LIGHT_CHANNEL_LUM]=0;
+		light_duty_cur[LIGHT_CHANNEL_CT]=0;
+	}
 
-    light_duty_cur[0]=(test1/((xw-xm)*yc+(xm-xc)*ym))*10;
-	light_duty_cur[1]=(test2/((xw-xm)*yc+(xm-xc)*ym))*10;
+	printf("lum-%d,ct-%d\n",light_duty_cur[LIGHT_CHANNEL_LUM],light_duty_cur[LIGHT_CHANNEL_CT]);
 }
 
 void light_ctrl_smooth_timer_proc(void* arg)
@@ -58,16 +66,21 @@ void light_ctrl_smooth_timer_proc(void* arg)
 	uint8_t	i;	
 	for(i = 0; i < PWM_CHANNEL_CNT; i++)
 	{	
-		if((light_duty_now[i] + DIMMING_PRECISION) >= light_duty_cur[i])
+		if(ABS_MINUS(light_duty_now[i],light_duty_cur[i]) <= DIMMING_PRECISION)
 		{
 			light_duty_now[i] = light_duty_cur[i];
 		}
-		else
+		else if(light_duty_now[i] < light_duty_cur[i])
 		{
 			light_duty_now[i] = light_duty_now[i]+DIMMING_PRECISION;
 		}
+		else if(light_duty_now[i] > light_duty_cur[i])
+		{
+			light_duty_now[i] = light_duty_now[i]-DIMMING_PRECISION;
+		}
 	}
 
+	printf("state-%d,lum-%d,ct-%d\n",lightState.lightOn,light_duty_now[LIGHT_CHANNEL_LUM],light_duty_now[LIGHT_CHANNEL_CT]);
 	pwm_set_duty(light_duty_now[LIGHT_CHANNEL_LUM], LIGHT_CHANNEL_LUM);
 	pwm_set_duty(light_duty_now[LIGHT_CHANNEL_CT], LIGHT_CHANNEL_CT);		
 	pwm_start();	
@@ -82,7 +95,7 @@ void light_ctrl_smooth_timer_proc(void* arg)
 void  light_ctrl_init(void)
 {	
 	uint32_t dlum,dct; 
-	uint32_t pwm_duty_init[PWM_CHANNEL_CNT];
+	uint32_t pwm_duty_init[PWM_CHANNEL_CNT] = {0};
 	
 	uint32_t io_info[][3] = 
 	{
@@ -114,7 +127,6 @@ void  light_ctrl_onoff(void)
 	}
 	else
 	{
-		//light_pwm_calc(0,0);
 		light_duty_cur[LIGHT_CHANNEL_LUM] = 0;
 		light_duty_cur[LIGHT_CHANNEL_CT] = 0;
 	}

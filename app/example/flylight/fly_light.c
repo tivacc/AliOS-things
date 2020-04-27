@@ -730,8 +730,6 @@ int linkkit_main(void *paras)
             light_deviceinfo_update();
         }
         time_prev_sec = time_now_sec;
-
-        
     }
 
     IOT_Linkkit_Close(light_ctx->master_devid);

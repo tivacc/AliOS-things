@@ -21,7 +21,8 @@ GLOBAL_DEFINES += ENABLE_AOS_OTA
 endif
 
 ifeq ($(FLYDIMMING_CONFIG_CASE_SOLO),y)
-$(NAME)_SOURCES += fly_dimming.c
+$(NAME)_SOURCES += fly_dimming.c 
+$(NAME)_SOURCES += fly_light_ctrl.c 
 endif
 
 

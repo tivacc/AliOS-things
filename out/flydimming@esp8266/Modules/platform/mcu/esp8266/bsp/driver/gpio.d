@@ -63,4 +63,5 @@ out/flydimming@esp8266/Modules/platform/mcu/esp8266/bsp/driver/gpio.o: \
  platform/mcu/esp8266/espos/include/espos_task.h \
  platform/mcu/esp8266/espos/include/espos_time.h \
  platform/mcu/esp8266/bsp/include/driver/gpio.h \
- platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/pin_mux_register.h

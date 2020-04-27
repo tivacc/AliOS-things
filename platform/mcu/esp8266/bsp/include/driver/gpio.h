@@ -30,6 +30,7 @@ extern "C" {
 #endif
 #include "c_types.h"
 #include "esp8266/gpio_register.h"
+#include "../espressif/esp8266/pin_mux_register.h"
 #define GPIO_Pin_0              (BIT(0))  /* Pin 0 selected */
 #define GPIO_Pin_1              (BIT(1))  /* Pin 1 selected */
 #define GPIO_Pin_2              (BIT(2))  /* Pin 2 selected */

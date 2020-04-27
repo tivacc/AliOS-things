@@ -21,6 +21,12 @@
 #define LED_GPIO_PULLUP          GPIO_PullUp_EN //GPIO_PullUp_DIS
 #define LED_GPIO_INTRTYPE        GPIO_PIN_INTR_DISABLE
 
+#define SWITCH_GPIO_NUM          14
+#define SWITCH_GPIO_PIN          GPIO_Pin_14
+#define SWITCH_GPIO_MODE         GPIO_Mode_Output
+#define SWITCH_GPIO_PULLUP       GPIO_PullUp_EN //GPIO_PullUp_DIS
+#define SWITCH_GPIO_INTRTYPE     GPIO_PIN_INTR_DISABLE
+
 uint32_t    recv_size = 0;
 uint32_t    send_size = 0;
 uint8_t     serial_bytes[100];
@@ -79,6 +85,51 @@ void wifi_led_config_func(uint8_t state)
     else                            //other state,off led
     {
         gpio_output_conf(0, WIFI_LED_GPIO_PIN, WIFI_LED_GPIO_PIN, 0);
+    }
+
+}
+
+
+void switch_gpio_init(void)
+{   
+    GPIO_ConfigTypeDef led_gpio_cnf;
+    led_gpio_cnf.GPIO_Pin = SWITCH_GPIO_PIN;
+    led_gpio_cnf.GPIO_Mode = SWITCH_GPIO_MODE;
+    led_gpio_cnf.GPIO_Pullup = SWITCH_GPIO_PULLUP;
+    led_gpio_cnf.GPIO_IntrType = SWITCH_GPIO_INTRTYPE;
+    gpio_config(&led_gpio_cnf);    
+}
+
+uint32_t switch_state_func(void)
+{
+    return ((gpio_input_get() & 0x01<<14) >> 14);
+}
+
+void switch_config_func(uint8_t state)
+{
+    
+    if(state == 0) // off led
+    {
+        gpio_output_conf(0, SWITCH_GPIO_PIN, SWITCH_GPIO_PIN, 0);
+    }
+    else if(state == 1)      //on led
+    {
+        gpio_output_conf(SWITCH_GPIO_PIN, 0, SWITCH_GPIO_PIN, 0);
+    }
+    else if(state == 3) //toggle led
+    {
+        if(switch_state_func())    //if get 1,off led
+        {
+            gpio_output_conf(0, SWITCH_GPIO_PIN, SWITCH_GPIO_PIN, 0);
+        }
+        else                    //if get 0,on led
+        {
+            gpio_output_conf(SWITCH_GPIO_PIN, 0, SWITCH_GPIO_PIN, 0);
+        }
+    }
+    else                //other state,off led
+    {
+        gpio_output_conf(0, SWITCH_GPIO_PIN, SWITCH_GPIO_PIN, 0);
     }
 
 }

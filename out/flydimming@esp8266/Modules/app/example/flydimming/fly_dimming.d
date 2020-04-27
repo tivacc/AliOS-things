@@ -45,4 +45,13 @@ out/flydimming@esp8266/Modules/app/example/flydimming/fly_dimming.o: \
  middleware/linkkit/sdk-c/include/imports/iot_import_tls.h \
  utility/cjson/include/cJSON.h app/example/flydimming/app_entry.h \
  include/aos/kernel.h include/aos/hal/gpio.h \
- app/example/flydimming/bsp_board.h include/ota/ota_service.h
+ app/example/flydimming/bsp_board.h \
+ app/example/flydimming/fly_light_ctrl.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/driver/gpio.h \
+ platform/mcu/esp8266/bsp/include/espressif/c_types.h \
+ /home/tivacc/AliOS-Things/build/compiler/gcc-xtensa-lx106/Linux64/lib/gcc/xtensa-lx106-elf/4.8.2/include/stdbool.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/pin_mux_register.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/eagle_soc.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/espressif/esp_timer.h \
+ include/ota/ota_service.h

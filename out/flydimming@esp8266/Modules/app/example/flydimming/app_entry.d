@@ -81,4 +81,11 @@ out/flydimming@esp8266/Modules/app/example/flydimming/app_entry.o: \
  include/aos/hal/gpio.h include/aos/hal/uart.h \
  platform/mcu/esp8266/bsp/include/driver/uart.h \
  platform/mcu/esp8266/bsp/include/espressif/esp8266/uart_register.h \
- app/example/flydimming/fly_queue.h include/ota/ota_service.h
+ app/example/flydimming/fly_queue.h \
+ app/example/flydimming/fly_light_ctrl.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/driver/gpio.h \
+ platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/pin_mux_register.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/eagle_soc.h \
+ app/example/flydimming/../../../platform/mcu/esp8266/bsp/include/espressif/esp_timer.h \
+ include/ota/ota_service.h

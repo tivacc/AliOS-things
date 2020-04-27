@@ -55,5 +55,6 @@ out/flydimming@esp8266/Modules/platform/mcu/esp8266/bsp/key.o: \
  platform/mcu/esp8266/bsp/include/espressif/pwm.h \
  platform/mcu/esp8266/bsp/include/driver/gpio.h \
  platform/mcu/esp8266/bsp/include/espressif/esp8266/gpio_register.h \
+ platform/mcu/esp8266/bsp/include/driver/../espressif/esp8266/pin_mux_register.h \
  include/aos/kernel.h network/yloop/include/aos/yloop.h \
  network/yloop/include/event_type_code.h

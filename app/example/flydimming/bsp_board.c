@@ -15,19 +15,20 @@
 #define WIFI_LED_GPIO_PULLUP     GPIO_PullUp_DIS //GPIO_PullUp_DIS
 #define WIFI_LED_GPIO_INTRTYPE   GPIO_PIN_INTR_DISABLE
 
-#define LED_GPIO_NUM             12
-#define LED_GPIO_PIN             GPIO_Pin_12
-#define LED_GPIO_MODE            GPIO_Mode_Output
-#define LED_GPIO_PULLUP          GPIO_PullUp_EN //GPIO_PullUp_DIS
-#define LED_GPIO_INTRTYPE        GPIO_PIN_INTR_DISABLE
+#define ZCD_GPIO_NUM             14
+#define ZCD_GPIO_PIN             GPIO_Pin_14
+#define ZCD_GPIO_MODE            GPIO_Mode_Input
+#define ZCD_GPIO_PULLUP          GPIO_PullUp_EN //GPIO_PullUp_DIS
+#define ZCD_GPIO_INTRTYPE        GPIO_PIN_INTR_NEGEDGE
 
+uint8_t     zcd_cnt = 0;
+uint8_t     zcd_start = 0;
 uint32_t    recv_size = 0;
 uint32_t    send_size = 0;
 uint8_t     serial_bytes[100];
 
 uart_dev_t  uart;
 fly_key_write_t fly_key_write;
-fly_curtain_ctrl_t fly_curtain_ctrl;
 
 void wifi_key_init(void)
 {
@@ -81,6 +82,35 @@ void wifi_led_config_func(uint8_t state)
         gpio_output_conf(0, WIFI_LED_GPIO_PIN, WIFI_LED_GPIO_PIN, 0);
     }
 
+}
+
+static void zcd_gpio_isr(void *arg)
+{
+    uint32_t gpio_status = GPIO_REG_READ(GPIO_STATUS_ADDRESS);
+    GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, gpio_status);
+    if (gpio_status & (1 << ZCD_GPIO_NUM))
+    {
+        uint32_t level = GPIO_INPUT_GET(ZCD_GPIO_NUM);
+        if ((level == 0) ) 
+        {
+            zcd_start = 1;
+            zcd_cnt += 1;
+        }
+    }
+}
+
+void zcd_gpio_init(void)
+{
+    GPIO_ConfigTypeDef zcd_gpio_cnf;
+    gpio_intr_handler_register(zcd_gpio_isr, NULL);
+
+    zcd_gpio_cnf.GPIO_Pin = ZCD_GPIO_PIN;
+    zcd_gpio_cnf.GPIO_Mode = ZCD_GPIO_MODE;
+    zcd_gpio_cnf.GPIO_Pullup = ZCD_GPIO_PULLUP;
+    zcd_gpio_cnf.GPIO_IntrType = ZCD_GPIO_INTRTYPE;
+    gpio_config(&zcd_gpio_cnf);
+
+    _xt_isr_unmask(1 << ETS_GPIO_INUM);
 }
 
 static  uint32_t calc_crc(uint8_t crcbuf, uint32_t crc)
@@ -142,7 +172,6 @@ uint8_t serial_init(void)
 
 //for curtain control
 //1:write key
-//2:control curtain
 uint8_t serial_receive_handler(uint8_t serialType)
 {
     int8_t ret;
@@ -178,19 +207,6 @@ uint8_t serial_receive_handler(uint8_t serialType)
                 result = 2;
             }
         }
-        else if(serialType == 2)
-        {
-            tempCrc = data_crc16_check(CURTAIN_CHECK_CRC,serial_bytes,recv_size-2);
-            if(tempCrc == (serial_bytes[recv_size-3] <<8 + serial_bytes[recv_size-2]))
-            {
-                memcpy(&(fly_curtain_ctrl.startCode),serial_bytes,recv_size-2);
-                result = 1;
-            }
-            else
-            {
-                result = 2;
-            }
-        }
     }
 
     return result;   
@@ -215,34 +231,6 @@ uint8_t serial_send_handler(uint8_t serialType,uint8_t datLen,uint8_t *dataSend)
         hal_uart_send(&uart,fly_key_write.payload,datLen,1000);
         hal_uart_send(&uart,&(fly_key_write.checkSumH),4,1000);
         result = 1;
-    }
-    else if(serialType == 2)
-    {
-        if(datLen<2)
-        {
-            result = 0;
-        }       
-        else
-        {
-            fly_curtain_ctrl.startCode = CURTAIN_START_CODE;
-            fly_curtain_ctrl.devAddrH = (uint8_t)((CURTAIN_ID>>8)&0xFF);
-            fly_curtain_ctrl.devAddrL = (uint8_t)(CURTAIN_ID&0xFF);
-            fly_curtain_ctrl.ctrlCode = dataSend[0];
-
-            for(i = 0; i < (datLen-1); i++)
-            {
-                fly_curtain_ctrl.payload[i] = dataSend[i+1];
-            }
-
-            tempCrc = data_crc16_check(CURTAIN_CHECK_CRC,&(fly_curtain_ctrl.startCode),datLen+3);
-            fly_curtain_ctrl.checkSumH = (uint8_t)((tempCrc>>8)&0xFF);
-            fly_curtain_ctrl.checkSumL = (uint8_t)((tempCrc)&0xFF);
-
-            hal_uart_send(&uart,&(fly_curtain_ctrl.startCode),datLen+3,1000);
-            hal_uart_send(&uart,&(fly_curtain_ctrl.checkSumH),2,1000);
-
-            result = 1;
-        }
     }
     
     return result;

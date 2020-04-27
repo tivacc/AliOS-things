@@ -18,7 +18,7 @@
 #endif
 
 
-uint8_t flyCurtainError = 0;
+uint8_t flyswitchError = 0;
 //***********************************************************
 
 #define USE_CUSTOME_DOMAIN          (0)
@@ -27,7 +27,7 @@ uint8_t flyCurtainError = 0;
     #define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
 #endif
 
-#define curtain_YIELD_TIMEOUT_MS      (200)
+#define SWITCH_YIELD_TIMEOUT_MS      (200)
 #define EXAMPLE_TRACE(...)                               \
     do {                                                     \
         HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);  \
@@ -40,12 +40,12 @@ typedef struct {
     int master_devid;
     int cloud_connected;
     int master_initialized;
-} fly_curtain_ctx_t;
+} fly_switch_ctx_t;
 
-static fly_curtain_ctx_t fly_curtain_ctx;
+static fly_switch_ctx_t fly_switch_ctx;
 
 //***********************************************************
-static uint64_t curtain_update_sec(void)
+static uint64_t switch_update_sec(void)
 {
     static uint64_t time_start_ms = 0;
 
@@ -57,17 +57,17 @@ static uint64_t curtain_update_sec(void)
 }
 
 
-static fly_curtain_ctx_t *fly_curtain_get_ctx(void)
+static fly_switch_ctx_t *fly_switch_get_ctx(void)
 {
-    return &fly_curtain_ctx;
+    return &fly_switch_ctx;
 }
 
 
-static int curtain_master_dev_available(void)
+static int switch_master_dev_available(void)
 {
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
 
-    if (curtain_ctx->cloud_connected && curtain_ctx->master_initialized) {
+    if (switch_ctx->cloud_connected && switch_ctx->master_initialized) {
         return 1;
     }
 
@@ -75,27 +75,27 @@ static int curtain_master_dev_available(void)
 }
 
 
-static int curtain_initialized(const int devid)
+static int switch_initialized(const int devid)
 {
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
     printf("Device Initialized, Devid: %d", devid);
 
-    if (curtain_ctx->master_devid == devid) {
-        curtain_ctx->master_initialized = 1;
+    if (switch_ctx->master_devid == devid) {
+        switch_ctx->master_initialized = 1;
     }
 
     return 0;
 }
 
-static int curtain_connected_event_handler(void)
+static int switch_connected_event_handler(void)
 {
     int ret = 0;
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
 
     printf("Cloud Connected");
     extern uint32_t wifi_config_state;
     wifi_config_state = 3;
-    curtain_ctx->cloud_connected = 1;
+    switch_ctx->cloud_connected = 1;
 
     #if defined(ENABLE_AOS_OTA) 
     //if connected ,initlize the ota 
@@ -124,20 +124,20 @@ static int curtain_connected_event_handler(void)
 }
 
 
-int curtain_connect_fail_handler(void)
+int switch_connect_fail_handler(void)
 {
     printf("Cloud Connect Fail,Reconnect");
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
-    curtain_ctx->cloud_connected = 0;
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
+    switch_ctx->cloud_connected = 0;
 
-    IOT_Linkkit_Connect(curtain_ctx->master_devid);
+    IOT_Linkkit_Connect(switch_ctx->master_devid);
 }
 
-void curtain_reconnect(void *p)
+void switch_reconnect(void *p)
 {
     int res = 0;
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
-    curtain_ctx->cloud_connected = 0;
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
+    switch_ctx->cloud_connected = 0;
 
     extern uint32_t wifi_config_state;
     wifi_config_state = 2;
@@ -145,26 +145,26 @@ void curtain_reconnect(void *p)
     do 
     {
         HAL_SleepMs(1000);
-        res = IOT_Linkkit_Connect(curtain_ctx->master_devid);
+        res = IOT_Linkkit_Connect(switch_ctx->master_devid);
     }while((res < 0) && (wifi_config_state < 4));
 
     aos_task_exit(0);
 }
 
-static int curtain_disconnected_event_handler(void)
+static int switch_disconnected_event_handler(void)
 {
     printf("Cloud Disconnected");
     extern uint32_t wifi_config_state;
     if(wifi_config_state < 4)
     {
-        aos_task_new("curtain_reconnect", curtain_reconnect, NULL, 4096);
+        aos_task_new("switch_reconnect", switch_reconnect, NULL, 4096);
     }
 
     return 0;
 }
 
 
-static int curtain_service_request_event_handler(const int devid, 
+static int switch_service_request_event_handler(const int devid, 
         const char *serviceid, 
         const int serviceid_len,
         const char *request, 
@@ -238,19 +238,19 @@ static int curtain_service_request_event_handler(const int devid,
 }
 
 
-static int curtain_property_set_event_handler(const int devid, 
+static int switch_property_set_event_handler(const int devid, 
                 const char *request, const int request_len)
 {
     int res = 0;
     char *response = NULL;
-    uint32_t curtainState = 0;
+    uint32_t switchState = 0;
     cJSON *request_root = NULL;
-    cJSON*item_curtainOperation = NULL;
-    cJSON*item_curtainposition = NULL;
+    cJSON*item_switchOperation = NULL;
+    cJSON*item_switchposition = NULL;
     uint8_t ctrlLen = 0;
     uint8_t crtlData[32];
 
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
     printf("Property Set Received, Devid: %d, Request: %s", devid, request);
 
     request_root = cJSON_Parse(request);
@@ -259,24 +259,13 @@ static int curtain_property_set_event_handler(const int devid,
         return -1;
     }
     
-    item_curtainOperation = cJSON_GetObjectItem(request_root, "CurtainOperation");
-    item_curtainposition = cJSON_GetObjectItem(request_root, "CurtainPosition");
+    item_switchOperation = cJSON_GetObjectItem(request_root, "LightSwitch");
 
-    if(item_curtainOperation != NULL)
+    if(item_switchOperation != NULL)
     {
-        printf("item_curtainOperation: %d", item_curtainOperation->valueint);
-        crtlData[ctrlLen++] = 0x03;
-        crtlData[ctrlLen++] = (item_curtainOperation->valueint == 0x00)?0x02:((item_curtainOperation->valueint == 0x01)?0x01:0x03);
-        serial_send_handler(SERIAL_TYPE_CURTAIN_CTRL,ctrlLen,crtlData);
+        printf("item_switchOperation: %d", item_switchOperation->valueint);
+        switch_config_func(item_switchOperation->valueint);
     }
-    else if(item_curtainposition != NULL)
-    {
-        printf("item_curtainposition: %d", item_curtainposition->valueint);
-        crtlData[ctrlLen++] = 0x03;
-        crtlData[ctrlLen++] = 0x04;
-        crtlData[ctrlLen++] = (item_curtainposition->valueint>100)?100:item_curtainposition->valueint;
-        serial_send_handler(SERIAL_TYPE_CURTAIN_CTRL,ctrlLen,crtlData);
-    }   
     else
     {
         cJSON_Delete(request_root);
@@ -288,23 +277,68 @@ static int curtain_property_set_event_handler(const int devid,
 }
 
 
-static int curtain_property_get_event_handler(const int devid, 
+static int switch_property_get_event_handler(const int devid, 
         const char *request, const int request_len, char **response, int *response_len)
 {
-    printf("Property Get Received, Devid: %d, Request: %s", devid, request);
-    
-    uint8_t ctrlLen = 0;
-    uint8_t crtlData[32];
+    cJSON *request_root = NULL, *item_propertyid = NULL;
+    cJSON *response_root = NULL;
+    int index = 0;
+    EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
 
-    crtlData[ctrlLen++] = 0x01;
-    crtlData[ctrlLen++] = 0x02;
-    crtlData[ctrlLen++] = 0x01;
-    serial_send_handler(SERIAL_TYPE_CURTAIN_CTRL,ctrlLen,crtlData);
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
+
+    /* Parse Request */
+    request_root = cJSON_Parse(request);
+    if (request_root == NULL) {
+        EXAMPLE_TRACE("JSON Parse Error");
+        return -1;
+    }
+
+    /* Prepare Response */
+    response_root = cJSON_CreateObject();
+    if (response_root == NULL) {
+        EXAMPLE_TRACE("No Enough Memory");
+        cJSON_Delete(request_root);
+        return -1;
+    }
+
+    for (index = 0; index < cJSON_GetArraySize(request_root); index++) {
+        item_propertyid = cJSON_GetArrayItem(request_root, index);
+        if (item_propertyid == NULL || !cJSON_IsString(item_propertyid)) {
+            EXAMPLE_TRACE("JSON Parse Error");
+            cJSON_Delete(request_root);
+            cJSON_Delete(response_root);
+            return -1;
+        }
+
+        EXAMPLE_TRACE("Property ID, index: %d, Value: %s", index, item_propertyid->valuestring);
+
+        if (strcmp("LightSwitch", item_propertyid->valuestring) == 0) {
+            
+            cJSON_AddNumberToObject(response_root, "LightSwitch", switch_state_func());
+        }
+    }
+    cJSON_Delete(request_root);
+
+    *response = cJSON_PrintUnformatted(response_root);
+    if (*response == NULL) {
+        EXAMPLE_TRACE("No Enough Memory");
+        cJSON_Delete(response_root);
+        return -1;
+    }
+    *response_len = strlen(*response);
+    IOT_Linkkit_Report(switch_ctx->master_devid, ITM_MSG_POST_PROPERTY,
+                             (unsigned char *)response, *response_len);
+    
+    EXAMPLE_TRACE("Property Get Response: %s", *response);
+    cJSON_free(*response);
+    cJSON_Delete(response_root);
+    
     return SUCCESS_RETURN;
 }
 
 
-static int curtain_trigger_event_reply_event_handler(const int devid, 
+static int switch_trigger_event_reply_event_handler(const int devid, 
         const int msgid, const int code, const char *eventid,
         const int eventid_len, const char *message, const int message_len)
 {
@@ -315,7 +349,7 @@ static int curtain_trigger_event_reply_event_handler(const int devid,
 }
 
 
-static int curtain_timestamp_reply_event_handler(const char *timestamp)
+static int switch_timestamp_reply_event_handler(const char *timestamp)
 {
     printf("Current Timestamp: %s", timestamp);
 
@@ -328,26 +362,26 @@ static int curtain_timestamp_reply_event_handler(const char *timestamp)
   * 0 - new firmware exist
   *
   */
-static int curtain_fota_event_handler(int type, const char *version)
+static int switch_fota_event_handler(int type, const char *version)
 {
     char buffer[128] = {0};
     int buffer_length = 128;
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
 
     if (type == 0) {
         printf("New Firmware Version: %s", version);
 
-        IOT_Linkkit_Query(curtain_ctx->master_devid, ITM_MSG_QUERY_FOTA_DATA, (unsigned char *)buffer, buffer_length);
+        IOT_Linkkit_Query(switch_ctx->master_devid, ITM_MSG_QUERY_FOTA_DATA, (unsigned char *)buffer, buffer_length);
     }
 
     return 0;
 }
 
 
-void curtain_post_property(void)
+void switch_post_property(void)
 {
     int res = 0;
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
 
     cJSON *dev_property ;
     dev_property = cJSON_CreateObject();
@@ -356,30 +390,18 @@ void curtain_post_property(void)
         return;
     }
 
-    if(fly_curtain_ctrl.ctrlCode == 0x03)
-    {
-        if((fly_curtain_ctrl.payload[0] == 0x01) || \
-            (fly_curtain_ctrl.payload[0] == 0x02) || \
-            (fly_curtain_ctrl.payload[0] == 0x03))
-        {
-            cJSON_AddNumberToObject(dev_property,"CurtainOperation",fly_curtain_ctrl.payload[0]);
-        }
-        else if(fly_curtain_ctrl.payload[0] == 0x04)
-        {
-            cJSON_AddNumberToObject(dev_property,"CurtainPosition",fly_curtain_ctrl.payload[1]);
-        }
-    }
+    cJSON_AddNumberToObject(dev_property,"LightSwitch",switch_state_func());
 
     unsigned char *tempString = (unsigned char *)cJSON_PrintUnformatted(dev_property);
-    res = IOT_Linkkit_Report(curtain_ctx->master_devid, ITM_MSG_POST_PROPERTY,tempString, strlen(tempString));
+    res = IOT_Linkkit_Report(switch_ctx->master_devid, ITM_MSG_POST_PROPERTY,tempString, strlen(tempString));
     cJSON_free(tempString);
 
-    printf("Post Curtain Property Message ID: %d", res);
+    printf("Post switch Property Message ID: %d", res);
     cJSON_Delete(dev_property);
 }
 
 
-void curtain_post_event(void)
+void switch_post_event(void)
 {
     int res = 0;
     cJSON *error_event ;
@@ -388,23 +410,23 @@ void curtain_post_event(void)
     {
         return;
     }
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
-    cJSON_AddNumberToObject(error_event,"Error",flyCurtainError);
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
+    cJSON_AddNumberToObject(error_event,"Error",flyswitchError);
     unsigned char *tempString = (unsigned char *)cJSON_PrintUnformatted(error_event);
-    res = IOT_Linkkit_Report(curtain_ctx->master_devid, ITM_MSG_POST_PROPERTY,tempString, strlen(tempString));
+    res = IOT_Linkkit_Report(switch_ctx->master_devid, ITM_MSG_POST_PROPERTY,tempString, strlen(tempString));
     cJSON_free(tempString);
 
-    printf("Post Curtain Property Message ID: %d", res);
+    printf("Post switch Property Message ID: %d", res);
     cJSON_Delete(error_event);
 }
 
 
-void curtain_deviceinfo_update(void)
+void switch_deviceinfo_update(void)
 {
     int res = 0;
-    fly_curtain_ctx_t *curtain_ctx = fly_curtain_get_ctx();
-    char *device_info_update = "[{\"attrKey\":\"devType\",\"attrValue\":\"wificurtain\"},{\"attrKey\":\"manufacturer\",\"attrValue\":\"fengliyuan\"}]";
-    res = IOT_Linkkit_Report(curtain_ctx->master_devid, ITM_MSG_DEVICEINFO_UPDATE,
+    fly_switch_ctx_t *switch_ctx = fly_switch_get_ctx();
+    char *device_info_update = "[{\"attrKey\":\"devType\",\"attrValue\":\"wifiswitch\"},{\"attrKey\":\"manufacturer\",\"attrValue\":\"fengliyuan\"}]";
+    res = IOT_Linkkit_Report(switch_ctx->master_devid, ITM_MSG_DEVICEINFO_UPDATE,
                              (unsigned char *)device_info_update, strlen(device_info_update));
     printf("Device Info Update Message ID: %d", res);
 }
@@ -423,23 +445,23 @@ int linkkit_main(void *paras)
     uint64_t                        time_begin_sec = 0;
     
     iotx_linkkit_dev_meta_info_t    master_meta_info;
-    fly_curtain_ctx_t                *curtain_ctx = fly_curtain_get_ctx();
-    memset(curtain_ctx, 0, sizeof(fly_curtain_ctx_t));
+    fly_switch_ctx_t                *switch_ctx = fly_switch_get_ctx();
+    memset(switch_ctx, 0, sizeof(fly_switch_ctx_t));
 
     #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
         set_iotx_info();
     #endif
 
     /* Register Callback */
-    IOT_RegisterCallback(ITE_CONNECT_SUCC, curtain_connected_event_handler);
-    IOT_RegisterCallback(ITE_DISCONNECTED, curtain_disconnected_event_handler);
-    IOT_RegisterCallback(ITE_SERVICE_REQUST, curtain_service_request_event_handler);
-    IOT_RegisterCallback(ITE_PROPERTY_SET, curtain_property_set_event_handler);
-    IOT_RegisterCallback(ITE_PROPERTY_GET, curtain_property_get_event_handler);
-    IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, curtain_trigger_event_reply_event_handler);
-    IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, curtain_timestamp_reply_event_handler);
-    IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, curtain_initialized);
-    IOT_RegisterCallback(ITE_FOTA, curtain_fota_event_handler);
+    IOT_RegisterCallback(ITE_CONNECT_SUCC, switch_connected_event_handler);
+    IOT_RegisterCallback(ITE_DISCONNECTED, switch_disconnected_event_handler);
+    IOT_RegisterCallback(ITE_SERVICE_REQUST, switch_service_request_event_handler);
+    IOT_RegisterCallback(ITE_PROPERTY_SET, switch_property_set_event_handler);
+    IOT_RegisterCallback(ITE_PROPERTY_GET, switch_property_get_event_handler);
+    IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, switch_trigger_event_reply_event_handler);
+    IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, switch_timestamp_reply_event_handler);
+    IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, switch_initialized);
+    IOT_RegisterCallback(ITE_FOTA, switch_fota_event_handler);
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     //memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
     //memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
@@ -468,8 +490,8 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Create Master Device Resources */
-    curtain_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (curtain_ctx->master_devid < 0) {
+    switch_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+    if (switch_ctx->master_devid < 0) {
         printf("IOT_Linkkit_Open Failed\n");
         return -1;
     }
@@ -478,56 +500,34 @@ int linkkit_main(void *paras)
     do 
     {
         HAL_SleepMs(1000);
-        res = IOT_Linkkit_Connect(curtain_ctx->master_devid);
+        res = IOT_Linkkit_Connect(switch_ctx->master_devid);
     }while(res < 0);
 
-    time_begin_sec = curtain_update_sec();
+    time_begin_sec = switch_update_sec();
     while (1) {
-        if((wireless_ctrl_state == 1) && curtain_master_dev_available()) {
-            wireless_ctrl_state = 0;
-            if(fly_curtain_ctrl.ctrlCode == 0x04)
-            {
-                if(fly_curtain_ctrl.payload[0] == 0x03)
-                {
-                    flyCurtainError = fly_curtain_ctrl.payload[1];
-                    curtain_post_event();   
-                }
-            }
-            else
-            {
-                curtain_post_property();
-            }
-        }
-
-        IOT_Linkkit_Yield(curtain_YIELD_TIMEOUT_MS);
-        time_now_sec = curtain_update_sec();
+        IOT_Linkkit_Yield(SWITCH_YIELD_TIMEOUT_MS);
+        time_now_sec = switch_update_sec();
         if (time_prev_sec == time_now_sec) {
             continue;
         }
 
         /* Post Proprety Example */
      
-        if (time_now_sec % (60*1000/curtain_YIELD_TIMEOUT_MS) == 0 && curtain_master_dev_available()) {
-          uint8_t ctrlLen = 0;
-          uint8_t crtlData[32];
-
-          crtlData[ctrlLen++] = 0x01;
-          crtlData[ctrlLen++] = 0x02;
-          crtlData[ctrlLen++] = 0x01;
-          serial_send_handler(SERIAL_TYPE_CURTAIN_CTRL,ctrlLen,crtlData);
+        if (time_now_sec % (60*1000/SWITCH_YIELD_TIMEOUT_MS) == 0 && switch_master_dev_available()) {
+          switch_post_event();
         }
         
 
         /* Device Info Update Example */
-        if (time_now_sec % (5*60*1000/curtain_YIELD_TIMEOUT_MS) == 0 && curtain_master_dev_available()) {
-            curtain_deviceinfo_update();
+        if (time_now_sec % (5*60*1000/SWITCH_YIELD_TIMEOUT_MS) == 0 && switch_master_dev_available()) {
+            switch_deviceinfo_update();
         }
         time_prev_sec = time_now_sec;
 
         
     }
 
-    IOT_Linkkit_Close(curtain_ctx->master_devid);
+    IOT_Linkkit_Close(switch_ctx->master_devid);
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
